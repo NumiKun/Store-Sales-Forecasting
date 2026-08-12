@@ -1,0 +1,20 @@
+# Dataset & Data Files (Ignored due to GitHub 100MB file size limit)
+Dataset/
+*.csv
+
+# Python & Jupyter Notebook Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# OS & IDE Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
