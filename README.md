@@ -1,11 +1,11 @@
 # 🏬 Store Sales — Time Series Forecasting
 
-![Python](https.img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat-square&logo=python)
-![LightGBM](https.img.shields.io/badge/Model-LightGBM-green.svg?style=flat-square)
-![Kaggle](https.img.shields.io/badge/Kaggle-Competition-20BEFF.svg?style=flat-square&logo=kaggle)
-![License](https.img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat-square&logo=python)
+![LightGBM](https://img.shields.io/badge/Model-LightGBM-green.svg?style=flat-square)
+![Kaggle](https://img.shields.io/badge/Kaggle-Competition-20BEFF.svg?style=flat-square&logo=kaggle)
+![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)
 
-A end-to-end Machine Learning solution for the [Kaggle Store Sales — Time Series Forecasting](https://www.kaggle.com/competitions/store-sales-time-series-forecasting) competition.
+An end-to-end Machine Learning solution for the [Kaggle Store Sales — Time Series Forecasting](https://www.kaggle.com/competitions/store-sales-time-series-forecasting) competition.
 
 This project predicts 16 days of sales (August 16–31, 2017) for **54 stores** across **33 product families** (totaling **1,782 individual time series**) for Corporación Favorita, a large Ecuadorian-based grocery retailer.
 
@@ -17,6 +17,17 @@ This project predicts 16 days of sales (August 16–31, 2017) for **54 stores** 
 * **Goal**: Build a time-series forecasting model to accurately predict grocery store sales.
 * **Competition Link**: [Store Sales - Time Series Forecasting on Kaggle](https://www.kaggle.com/competitions/store-sales-time-series-forecasting)
 * **Dataset Download**: [Kaggle Competition Data Page](https://www.kaggle.com/competitions/store-sales-time-series-forecasting/data)
+
+---
+
+## 🏆 Results
+
+| Metric | Score |
+| :--- | :--- |
+| **Validation RMSLE** | **0.3908** |
+| Best Iteration | 1,631 / 3,000 (early stopped) |
+| Training Samples | 1,703,592 |
+| Test Predictions | 28,512 |
 
 ---
 
@@ -73,15 +84,27 @@ The forecasting pipeline incorporates domain-specific feature engineering tailor
    * **Promotional Data**: Lagged and rolling promotion intensity (`onpromotion`).
 
 5. **Categorical Encodings**:
-   * Label encoding for store metadata (`store_nbr`, `family`, `city`, `state`, `type`, `cluster`).
+   * Native LightGBM categorical encoding for store metadata (`store_nbr`, `family`, `city`, `state`, `type`, `cluster`).
 
 ---
 
 ## 🤖 Model Architecture & Validation Strategy
 
 * **Algorithm**: **LightGBM** (Gradient Boosted Decision Trees).
-* **Validation Strategy**: Time-based validation split using the last 16 days of training data (August 1–15, 2017) to mirror the exact test set scenario.
-* **Early Stopping**: Monitored on validation RMSE (log-scale) to prevent overfitting.
+* **Validation Strategy**: Time-based validation split using the last 15 days of training data (August 1–15, 2017) to mirror the exact test set scenario.
+* **Early Stopping**: Monitored on validation RMSE (log-scale) to prevent overfitting. Best iteration: **1,631** out of 3,000 max.
+* **Final Model**: Retrained on all available training data (from 2015 onward) using the best iteration count from validation.
+
+### Key Hyperparameters
+
+| Parameter | Value | Rationale |
+| :--- | :--- | :--- |
+| `num_leaves` | 255 | Captures complex store-family interactions |
+| `learning_rate` | 0.03 | Slower rate for better generalization |
+| `n_estimators` | 3,000 | High count with early stopping at 1,631 |
+| `min_child_samples` | 50 | Prevents overfitting to rare combinations |
+| `subsample` | 0.8 | Row sampling for regularization |
+| `colsample_bytree` | 0.8 | Feature sampling for regularization |
 
 ---
 
@@ -98,7 +121,8 @@ Store Sales Forecasting/
 │   ├── transactions.csv
 │   └── sample_submission.csv
 ├── Model/
-│   └── store_sales_forecasting.ipynb   # Main Jupyter Notebook
+│   ├── store_sales_forecasting.ipynb   # Main Jupyter Notebook
+│   └── submission.csv                  # Generated predictions
 ├── .gitignore             # Excludes Dataset/ and large CSV files
 └── README.md              # Project documentation
 ```
@@ -138,7 +162,7 @@ Open and run the notebook cell-by-cell in VS Code or Jupyter Lab:
 jupyter notebook Model/store_sales_forecasting.ipynb
 ```
 
-Running all cells will generate the final predictions saved to `submission.csv`.
+Running all cells will generate the final predictions saved to `Model/submission.csv`.
 
 ---
 
